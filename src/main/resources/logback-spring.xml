@@ -1,0 +1,89 @@
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="logback-spring.xsd" scan="true" scanPeriod="60 seconds">
+	
+	<springProperty scope="context" name="spring.application.name" source="spring.application.name" />
+	
+	<!-- 定义参数 -->
+	<property name="log.lever" value="debug" />
+	<property name="log.maxHistory" value="365" />
+	<property name="log.filePath" value="log"></property>
+	<!--  <property name="log.pattern" value="%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n" /> -->
+	<property name="log.pattern" value="%-12(%d{MM-dd HH:mm:ss}) %c [%L] | %msg%n" />
+	
+	<appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<!--<pattern>%d %p (%file:%line\)- %m%n</pattern>-->
+			<!--格式化输出：%d:表示日期    %thread:表示线程名     %-5level:级别从左显示5个字符宽度  %msg:日志消息    %n:是换行符-->
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} %green([%thread]) [%X{requestNo}] %highlight(%-5level) (%file:%line\) - %msg%n</pattern>
+			<charset>UTF-8</charset>
+		</encoder>
+	</appender>
+	
+	<!-- DEBUG -->
+	<appender name="debugAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.filePath}/debug.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.filePath}/debug/debug.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+			<MaxHistory>${log.maxHistory}</MaxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>DEBUG</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+	
+	<!-- INFO -->
+	<appender name="infoAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.filePath}/info.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.filePath}/info/info.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+			<MaxHistory>${log.maxHistory}</MaxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>INFO</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+	
+	<!-- ERROR -->
+	<appender name="errorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.filePath}/error.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.filePath}/error/error.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+			<MaxHistory>${log.maxHistory}</MaxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+	
+	<!--  上线后如果要查看错误日志，可以把level=info改为level=debug -->
+	<root level="info">
+		<appender-ref ref="consoleAppender" />
+		<appender-ref ref="debugAppender" />
+		<appender-ref ref="infoAppender" />
+		<appender-ref ref="errorAppender" />
+	</root>
+	
+	<logger name="org.hibernate.SQL" level="debug"/>
+	<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="trace"/>
+	<logger name="org.hibernate.engine.QueryParameters" level="debug"/>
+	<logger name="org.hibernate.engine.HQLQueryPlan" level="trace"/>
+	
+	<logger name="org.xnio" level="OFF"/>
+	<logger name="io.undertow" level="OFF"/>
+	
+</configuration>
